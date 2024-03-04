@@ -52,6 +52,8 @@ def predict():
         class_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
         result = class_labels[class_idx]
 
+        os.remove(img_path)
+
         return render_template('result.html', prediction=result)
     else:
         return render_template('index.html', prediction='Invalid file format')
