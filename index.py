@@ -8,38 +8,36 @@ from PIL import Image
 
 app = Flask(__name__)
 
-# Load your trained Keras model
-model = load_model('CIFAR_model')
+model = load_model("CIFAR_model")
 
-# Define allowed file extensions
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 
-# Function to check if a file has an allowed extension
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    """Function to check if a file has an allowed extension"""
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# Define routes
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    """Define routes"""
+    return render_template("index.html")
 
 
-@app.route('/predict', methods=['POST'])
+@app.route("/predict", methods=["POST"])
 def predict():
-    if 'file' not in request.files:
-        return render_template('index.html', prediction='No file part')
+    if "file" not in request.files:
+        return render_template("index.html", prediction="No file part")
 
-    file = request.files['file']
+    file = request.files["file"]
 
-    if file.filename == '':
-        return render_template('index.html', prediction='No selected file')
+    if file.filename == "":
+        return render_template("index.html", prediction="No selected file")
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join('uploads', filename))
-        img_path = os.path.join('uploads', filename)
+        file.save(os.path.join("uploads", filename))
+        img_path = os.path.join("uploads", filename)
 
         img = image.load_img(img_path, target_size=(32, 32))
         img = image.img_to_array(img)
@@ -49,15 +47,15 @@ def predict():
         prediction = model.predict(img)
         class_idx = np.argmax(prediction)
 
-        class_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+        class_labels = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
         result = class_labels[class_idx]
 
         os.remove(img_path)
 
-        return render_template('result.html', prediction=result)
+        return render_template("result.html", prediction=result)
     else:
-        return render_template('index.html', prediction='Invalid file format')
+        return render_template("index.html", prediction="Invalid file format")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
